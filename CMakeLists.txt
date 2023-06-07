@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.22)
 project(SMARTARR
     VERSION 0.1.0
     DESCRIPTION "C library of array functions"
-    LANGUAGES C #ASM C #no-CXX
+    LANGUAGES C #ASM CXX
 )
 
 set(CMAKE_C_STANDARD 23)
@@ -37,7 +37,7 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
 
 enable_testing()
 
-#add_subdirectory(test)
+add_subdirectory(test)
 
 message(STATUS "Host   CPU  : ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 message(STATUS "Target CPU  : ${CMAKE_SYSTEM_PROCESSOR}")

@@ -1,2 +1,1 @@
-# smartarr
-Pure C smart array functions
+# _smartarr_ - Pure C "smart array" functions
