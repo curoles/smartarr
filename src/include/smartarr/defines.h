@@ -8,6 +8,7 @@
     #pragma error "C23 is required!"
 #endif
 
+#define UNUSED                      __attribute__ ((unused))
 #define FN_ATTR_CONST               __attribute__ ((const))
 #define FN_ATTR_PURE                __attribute__ ((pure))
 #define FN_ATTR_WARN_UNUSED_RESULT  __attribute__ ((warn_unused_result))

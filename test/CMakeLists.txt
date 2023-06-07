@@ -1,10 +1,16 @@
 # Find all .c files in test directory and make CTest out of each file.
 # Author: Igor Lesik 2023
 
+# To use memory checking tools from CMake:
+include(CTest)
+# Now we can run with valgrind: `ctest -T memcheck`
+# see https://www.scivision.dev/cmake-valgrind/
+# see https://subscription.packtpub.com/book/programming/9781801070058/12/ch12lvl1sec76/dynamic-analysis-with-valgrind
+
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
-    #set(TEST_CC_FLAGS -static -O3 -mavx512f -mavx512dq -mavx512ifma) #-mavx512bf16
+    #set(TEST_CC_FLAGS -static)
 else()
-    #set(TEST_CC_FLAGS -static -O3)
+    #set(TEST_CC_FLAGS -static)
 endif()
 
 set(tests

@@ -24,7 +24,7 @@ endif()
 
 set(C_WARN_FLAGS  "-Wall -Wextra -Werror")
 set(C_OPT_FLAGS   "-O3 -march=native -ftree-vectorize")
-set(C_EXTRA_FLAGS "-fopenmp")
+#set(C_EXTRA_FLAGS "-fopenmp")
 set(CMAKE_C_FLAGS "${C_WARN_FLAGS} ${C_OPT_FLAGS} ${C_EXTRA_FLAGS}")
 #set(CMAKE_CXX_FLAGS "...")
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-z,stack-size=1000000")
