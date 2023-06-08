@@ -32,8 +32,6 @@ TEST string(void)
     ASSERT_EQ_FMT(0, smart_string_compare(&s, "Ai Ai!"), "%d");
     ASSERT_EQ(true, smart_string_equal(&s, "Ai Ai!"));
 
-    printf("Celsius °C, Fahrenheit °F, can I print UTF8 string? %s\n", "¯\\_(ツ)_/¯");
-
     PASS(); // FAIL|SKIP
 }
 

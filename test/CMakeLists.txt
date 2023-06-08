@@ -16,6 +16,7 @@ include(CTest)
 set(tests
     headers
     array
+    utf8
 )
 
 #set(atomic4_cc_flags -std=c11 -latomic)
