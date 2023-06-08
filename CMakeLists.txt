@@ -24,7 +24,7 @@ endif()
 
 set(C_WARN_FLAGS  "-Wall -Wextra -Werror")
 set(C_OPT_FLAGS   "-O3 -march=native -ftree-vectorize")
-#set(C_EXTRA_FLAGS "-fopenmp")
+set(C_EXTRA_FLAGS "")
 set(CMAKE_C_FLAGS "${C_WARN_FLAGS} ${C_OPT_FLAGS} ${C_EXTRA_FLAGS}")
 #set(CMAKE_CXX_FLAGS "...")
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-z,stack-size=1000000")
@@ -38,6 +38,7 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
 enable_testing()
 
 add_subdirectory(test)
+add_subdirectory(bench)
 
 message(STATUS "Host   CPU  : ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 message(STATUS "Target CPU  : ${CMAKE_SYSTEM_PROCESSOR}")
