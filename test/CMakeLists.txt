@@ -16,6 +16,7 @@ include(CTest)
 set(tests
     headers
     array
+    string
     utf8
 )
 

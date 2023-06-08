@@ -14,7 +14,7 @@ TEST test_printf(void)
     const char* s = "°C °F ¯\\_(ツ)_/¯";
     puts(s);
 
-#if 0 // printitng to stderr works, but I donot want to mess it up in case some error is there
+#if 0 // printitng to stderr works, but I donot want to mess stderr up in case some error is there
     /* Per the C standard, each FILE stream has associated with it an "orientation"
      * (either "byte" or "wide) which is set by the first operation performed on it,
      * and which can be inspected with the fwide function.
@@ -39,7 +39,7 @@ TEST test_utf8_h(void)
     const char* s = "°C °F ¯\\_(ツ)_/¯";
     printf("%s\nstrlen:%lu utf8len:%lu\n", s, strlen(s), utf8len(s));
     ASSERT_EQ(15, utf8len(s));
-    ASSERT_EQ(utf8len(s) + 5 + 1, strlen(s)); // why extra +1? maybe 1st symbol (for stream)
+    ASSERT_EQ(utf8len(s) + 5 + 1, strlen(s)); // why extra +1?
 
     PASS();
 }
