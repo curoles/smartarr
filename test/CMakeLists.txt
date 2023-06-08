@@ -7,15 +7,15 @@ include(CTest)
 # see https://www.scivision.dev/cmake-valgrind/
 # see https://subscription.packtpub.com/book/programming/9781801070058/12/ch12lvl1sec76/dynamic-analysis-with-valgrind
 
-if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+#if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
     #set(TEST_CC_FLAGS -static)
-else()
+#else()
     #set(TEST_CC_FLAGS -static)
-endif()
+#endif()
 
 set(tests
     headers
-    #test2
+    array
 )
 
 #set(atomic4_cc_flags -std=c11 -latomic)

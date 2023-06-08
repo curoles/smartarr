@@ -4,6 +4,8 @@
 #include <stdlib.h>
 
 #include "smartarr/defines.h"
+#include "smartarr/cpu.h"
+
 
 #define PPCAT_NX(a, b) a ## b
 #define PPCAT(a, b) PPCAT_NX(a, b)
@@ -27,7 +29,7 @@
 #define _SMART_ARRAY_T PPCAT(_ARRAY_TYPE_NAME, _smart_array_t)
 
 #ifndef _SMART_ARRAY_ALIGN
-#define _SMART_ARRAY_ALIGN 64u // TODO SMARTARR_SIMD_VLEN
+#define _SMART_ARRAY_ALIGN SMARTARR_SIMD_VLEN
 #endif
 
 #define ATTR_SMART_ARRAY_ALIGNED __attribute__((aligned(_SMART_ARRAY_ALIGN)))
