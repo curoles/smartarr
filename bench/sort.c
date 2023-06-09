@@ -6,23 +6,21 @@
 #include "smartarr/defines.h"
 #include "smartarr/bench.h"
 
-#define _ARRAY_TYPE int64_t
-#define _ARRAY_TYPE_NAME int64
-#include "smartarr/array.inc.h"
+#include "smartarr/basic_type_array.h"
 
 
 static
 void bench(const char* name,
-    int64_t* (*sorter)(int64_smart_array_t*),
+    int64_t* (*sorter)(i64_smart_array_t*),
     unsigned int len, unsigned int times,
-    int64_smart_array_t* a, int64_smart_array_t* pattern)
+    i64_smart_array_t* a, i64_smart_array_t* pattern)
 {
     printf("%16s: ", name);
 
     auto start_time = bench_start_timer();
     for (unsigned int n = 0; n < times; ++n)
     {
-        int64_array_memcopy(len, pattern->data, a->data);
+        i64_array_memcopy(len, pattern->data, a->data);
         sorter(a);
     }
     double tf = bench_stop_timer(&start_time);
@@ -37,16 +35,16 @@ void bench(const char* name,
 
 static
 void bench_insertion_sort(unsigned int len, unsigned int times,
-    int64_smart_array_t* a, int64_smart_array_t* pattern)
+    i64_smart_array_t* a, i64_smart_array_t* pattern)
 {
-    bench("Insertion sort", int64_smart_array_insertion_sort, len, times, a, pattern);
+    bench("Insertion sort", i64_smart_array_insertion_sort, len, times, a, pattern);
 }
 
 static
 void bench_bubble_sort(unsigned int len, unsigned int times,
-    int64_smart_array_t* a, int64_smart_array_t* pattern)
+    i64_smart_array_t* a, i64_smart_array_t* pattern)
 {
-    bench("Bubble sort", int64_smart_array_bubble_sort, len, times, a, pattern);
+    bench("Bubble sort", i64_smart_array_bubble_sort, len, times, a, pattern);
 }
 
 static
@@ -61,7 +59,7 @@ int int64_compare(const void* pa, const void* pb)
 
 static
 int64_t*
-library_qsort(int64_smart_array_t* a)
+library_qsort(i64_smart_array_t* a)
 {
     qsort(a->data, a->len, sizeof(int64_t), int64_compare);
     return a->data;
@@ -69,14 +67,14 @@ library_qsort(int64_smart_array_t* a)
 
 static
 void bench_lib_qsort(unsigned int len, unsigned int times,
-    int64_smart_array_t* a, int64_smart_array_t* pattern)
+    i64_smart_array_t* a, i64_smart_array_t* pattern)
 {
     bench("Library Q sort", library_qsort, len, times, a, pattern);
 }
 
 static
 void
-pattern_sorted(int64_smart_array_t* a)
+pattern_sorted(i64_smart_array_t* a)
 {
     for (unsigned int i = 0; i < a->len; ++i) {
          a->data[i] = i;
@@ -85,7 +83,7 @@ pattern_sorted(int64_smart_array_t* a)
 
 static
 void
-pattern_reverse_sorted(int64_smart_array_t* a)
+pattern_reverse_sorted(i64_smart_array_t* a)
 {
     for (unsigned int i = 0; i < a->len; ++i) {
          a->data[i] = a->len - i;
@@ -94,7 +92,7 @@ pattern_reverse_sorted(int64_smart_array_t* a)
 
 static
 void
-pattern_random(int64_smart_array_t* a)
+pattern_random(i64_smart_array_t* a)
 {
     for (unsigned int i = 0; i < a->len; ++i) {
          a->data[i] = i;
@@ -103,15 +101,15 @@ pattern_random(int64_smart_array_t* a)
     // randomly shuffle
     for (unsigned int range = a->len; range > 1; --range) {
         unsigned int random_index = rand() % range;
-        int64_array_swap_two_pointers(&a->data[random_index], &a->data[range - 1]);
+        i64_array_swap_two_pointers(&a->data[random_index], &a->data[range - 1]);
     }
 }
 
 static
 void benches(unsigned int len, unsigned int times)
 {
-    auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len);
-    auto_free int64_smart_array_t* pattern = int64_smart_array_heap_new(len);
+    auto_free i64_smart_array_t* a = i64_smart_array_heap_new(len);
+    auto_free i64_smart_array_t* pattern = i64_smart_array_heap_new(len);
 
     printf("Sorted pattern\n");
     pattern_sorted(pattern);
