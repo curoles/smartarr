@@ -2,6 +2,7 @@
 #include <locale.h>
 
 #include "smartarr/defines.h"
+#include <stdio.h> // XXXXXXXXXX XXX
 #include "smartarr/third/utf8.h"
 #include "smartarr/utf8_string.h"
 
@@ -59,8 +60,17 @@ TEST test_append(void)
     utf8_string_append(&s, "°¯\\_(ツ)_/¯°!");
 
     printf("size:%lu\n", utf8size_lazy("°¯\\_(ツ)_/¯°!"));
+    char* p = "°¯\\_(ツ)_/¯°!";
+    while (*p != '\0') {
+        utf8_int32_t codepoint;
+        char* next = utf8codepoint(p, &codepoint);
+        //printf("cur:%p next:%p diff:%ld codepoint:%x\n", p, next, next-p, codepoint);
+        p = next;
+    }
 
     puts(utf8_string_get(&s));
+    printf("len bytes: %lu nr_cdp: %lu\n", s.len, s.nr_cdp);
+
     ASSERT_EQ(0, utf8_string_compare(&s, "°¯\\_(ツ)_/¯°!"));
     ASSERT(utf8_string_equal(&s, "°¯\\_(ツ)_/¯°!"));
     ASSERT_FALSE(utf8_string_equal(&s, "°¯\\_(ツ)_/¯° °F"));
@@ -74,12 +84,14 @@ TEST test_append2(void)
 
     utf8_string_append(&s, "°¯\\_(ツ)_/¯°");
 
-    printf("size:%lu\n", utf8size_lazy("°¯\\_(ツ)_/¯°"));
+    //printf("size:%lu\n", utf8size_lazy("°¯\\_(ツ)_/¯°"));
 
     puts(utf8_string_get(&s));
+    printf("len bytes: %lu nr_cdp: %lu\n", s.len, s.nr_cdp);
+
     ASSERT_EQ(0, utf8_string_compare(&s, "°¯\\_(ツ)_/¯°"));
     ASSERT(utf8_string_equal(&s, "°¯\\_(ツ)_/¯°"));
-    ASSERT_FALSE(utf8_string_equal(&s, "°¯\\_(ツ)_/¯° °F"));
+    ASSERT_FALSE(utf8_string_equal(&s, "!°¯\\_(ツ)_/¯°"));
 
     PASS();
 }

@@ -11,6 +11,7 @@ typedef struct utf8_string
 {
     size_t capacity;
     size_t len;
+    size_t nr_cdp;
     char* storage; // XXX align?
 } utf8_string_t;
 
@@ -28,6 +29,7 @@ utf8_string_init(utf8_string_t *restrict self, size_t len)
 
     self->storage[0] = '\0';
     self->len = 0;
+    self->nr_cdp = 0;
     self->capacity = len;
 }
 
@@ -62,11 +64,13 @@ FN_ATTR_RETURNS_NONNULL __attribute__((nonnull(1)))
 utf8_string_t*
 utf8_string_from(utf8_string_t *restrict self, const char *restrict s)
 {
-    size_t len = utf8nlen(s, utf8_string_max_len);
+    size_t len = utf8nsize_lazy(s, utf8_string_max_len);
     utf8_string_init(self, len);
 
-    utf8ncpy(self->storage, s, self->capacity);
+    utf8ncpy(self->storage, s, self->capacity - 1);
     self->len = self->capacity - 1;
+
+    self->nr_cdp = utf8nlen(self->storage, self->len);
 
     return self;
 }
@@ -107,9 +111,11 @@ utf8_string_append(utf8_string_t* self, const char *restrict str)
         utf8_string_resize(self, new_len);
     }
 
-    utf8ncpy(&self->storage[self->len], str, add_len+1);
+    utf8ncpy(&self->storage[self->len], str, add_len + 1);
 
     self->len = new_len;
+
+    self->nr_cdp = utf8nlen(self->storage, self->len);
 
     return self;
 }

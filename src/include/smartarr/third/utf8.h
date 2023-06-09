@@ -676,7 +676,9 @@ utf8_int8_t *utf8ncpy(utf8_int8_t *utf8_restrict dst,
   }
 
   for (check_index = index - 1;
-       check_index > 0 && 0x80 == (0xc0 & d[check_index]); check_index--) {
+       //check_index > 0 && 0x80 == (0xc0 & d[check_index]);
+       check_index > 0 && (0x80 & d[check_index]);
+       check_index--) {
     /* just moving the index */
   }
 
