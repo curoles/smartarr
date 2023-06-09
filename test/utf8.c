@@ -3,6 +3,7 @@
 
 #include "smartarr/defines.h"
 #include "smartarr/third/utf8.h"
+#include "smartarr/utf8_string.h"
 
 #include "third/greatest.h"
 
@@ -49,7 +50,63 @@ SUITE(basic) {
     setlocale(LC_CTYPE, "en_US.UTF-8");
     RUN_TEST(test_printf);
     RUN_TEST(test_utf8_h);
-    //RUN_TEST();
+}
+
+TEST test_append(void)
+{
+    UTF8_STRING(s, 100);
+
+    utf8_string_append(&s, "°¯\\_(ツ)_/¯°!");
+
+    printf("size:%lu\n", utf8size_lazy("°¯\\_(ツ)_/¯°!"));
+
+    puts(utf8_string_get(&s));
+    ASSERT_EQ(0, utf8_string_compare(&s, "°¯\\_(ツ)_/¯°!"));
+    ASSERT(utf8_string_equal(&s, "°¯\\_(ツ)_/¯°!"));
+    ASSERT_FALSE(utf8_string_equal(&s, "°¯\\_(ツ)_/¯° °F"));
+
+    PASS();
+}
+
+TEST test_append2(void)
+{
+    UTF8_STRING(s, 100);
+
+    utf8_string_append(&s, "°¯\\_(ツ)_/¯°");
+
+    printf("size:%lu\n", utf8size_lazy("°¯\\_(ツ)_/¯°"));
+
+    puts(utf8_string_get(&s));
+    ASSERT_EQ(0, utf8_string_compare(&s, "°¯\\_(ツ)_/¯°"));
+    ASSERT(utf8_string_equal(&s, "°¯\\_(ツ)_/¯°"));
+    ASSERT_FALSE(utf8_string_equal(&s, "°¯\\_(ツ)_/¯° °F"));
+
+    PASS();
+}
+
+/*TEST test_find_first_substring(void)
+{
+    UTF8_STRING_FROM(s, "Hello you!");
+    //puts(utf8_string_get(&s));
+
+    utf8_string_append(&s, " And you!");
+    //puts(smart_string_get(&s));
+    ASSERT(utf8_string_equal(&s, "Hello you! And you!"));
+
+    ASSERT(utf8_string_find_first_char(&s, '!'));
+    ASSERT(utf8_string_find_first_char(&s, '?') == nullptr);
+
+    //puts(smart_string_find_first_substring(&s, "And"));
+    ASSERT(utf8_string_contains(&s, "And"));
+    ASSERT_FALSE(utf8_string_contains(&s, "OR"));
+
+    PASS();
+}*/
+
+SUITE(functions) {
+    setlocale(LC_CTYPE, "en_US.UTF-8");
+    RUN_TEST(test_append);
+    RUN_TEST(test_append2);
 }
 
 GREATEST_MAIN_DEFS();
@@ -58,6 +115,7 @@ int main(int argc UNUSED, char **argv UNUSED) {
     GREATEST_MAIN_BEGIN();
 
     RUN_SUITE(basic);
+    RUN_SUITE(functions);
 
     GREATEST_MAIN_END();
 }
