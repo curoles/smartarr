@@ -194,7 +194,6 @@ double bench5(unsigned int len, unsigned int times)
     // warm up
     int64_smart_array_add_destruct(a, b);
 
-
     auto start_time = bench_start_timer();
     for (unsigned int n = 0; n < times; ++n)
     {

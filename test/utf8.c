@@ -1,8 +1,8 @@
 #include <wchar.h>
 #include <locale.h>
+#include <stdio.h>
 
 #include "smartarr/defines.h"
-#include <stdio.h> // XXXXXXXXXX XXX
 #include "smartarr/third/utf8.h"
 #include "smartarr/utf8_string.h"
 
@@ -46,11 +46,23 @@ TEST test_utf8_h(void)
     PASS();
 }
 
+TEST test_has_unicode(void)
+{
+    UTF8_STRING_FROM(s1, "ascii only");
+    UTF8_STRING_FROM(s2, "°C °F ¯\\_(ツ)_/¯");
+
+    ASSERT_FALSE(utf8_string_has_unicode(&s1));
+    ASSERT(utf8_string_has_unicode(&s2));
+
+    PASS();
+}
+
 
 SUITE(basic) {
     setlocale(LC_CTYPE, "en_US.UTF-8");
     RUN_TEST(test_printf);
     RUN_TEST(test_utf8_h);
+    RUN_TEST(test_has_unicode);
 }
 
 TEST test_append(void)
@@ -115,10 +127,30 @@ TEST test_append2(void)
     PASS();
 }*/
 
+TEST UNUSED test_read_file(void)
+{
+    UTF8_STRING(s, 100);
+
+    int res = utf8_string_read_from_file(&s, "../smartarr/test/utf8.c");
+    if (res < 0) {
+        FAIL();
+    }
+
+    //puts(utf8_string_get(&s));
+
+    ASSERT_EQ(0, utf8valid(s.storage));
+
+    printf("capacity: %lu len: %lu cdp: %lu\n", s.capacity, s.len, s.nr_cdp);
+    ASSERT(utf8_string_has_unicode(&s));
+
+    PASS();
+}
+
 SUITE(functions) {
     setlocale(LC_CTYPE, "en_US.UTF-8");
     RUN_TEST(test_append);
     RUN_TEST(test_append2);
+    //RUN_TEST(test_read_file);
 }
 
 GREATEST_MAIN_DEFS();

@@ -159,3 +159,66 @@ utf8_string_contains(utf8_string_t* self, const char* s)
 {
     return utf8_string_find_first_substring(self, s) != nullptr;
 }
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_WARN_UNUSED_RESULT
+bool
+utf8_string_has_unicode(utf8_string_t* self)
+{
+    return self->len > self->nr_cdp;
+}
+
+/* Read file contents and put it into the string.
+ *
+ * @return negative number if error, 0 if there are NO wide codepoints,
+ *         1 if there are wide code points.
+ */
+static inline
+__attribute__((nonnull(1))) FN_ATTR_WARN_UNUSED_RESULT
+int
+utf8_string_read_from_file(utf8_string_t* self, const char* filename)
+{
+    FILE* fd = fopen(filename, "r");
+    if (fd == nullptr) {
+        return -1; // XXX maybe return errno?
+    }
+
+    constexpr size_t max_file_size = (1UL << 32) - 1;
+    fseek(fd, 0, SEEK_END);
+    const size_t file_size = ftell(fd);
+    if (file_size > max_file_size) {
+        return -2;
+    }
+
+    utf8_string_resize(self, file_size);
+
+    rewind(fd);
+
+    self->len = 0;
+
+    constexpr size_t buf_size = 1024*4;
+    char buf[buf_size];
+
+    while (!feof(fd)) {
+        const size_t nr_new_bytes = fread(buf, sizeof(buf[0]), buf_size, fd);
+        if (nr_new_bytes == 0) {
+            break;
+        }
+
+        const size_t required_capacity = self->len + nr_new_bytes;
+        if (required_capacity > (self->capacity - 1)) {
+            utf8_string_resize(self, required_capacity + 2*buf_size);
+        }
+
+        __builtin_memcpy(&self->storage[self->len], buf, nr_new_bytes);
+        self->len += nr_new_bytes;
+    }
+
+    fclose(fd);
+
+    self->storage[self->len] = '\0';
+
+    self->nr_cdp = utf8nlen(self->storage, self->capacity);
+
+    return utf8_string_has_unicode(self)? 1 : 0;
+}
