@@ -182,6 +182,39 @@ double bench3(unsigned int len, unsigned int times)
     return tf;
 }
 
+double bench5(unsigned int len, unsigned int times)
+{
+    auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len);
+    auto_free int64_smart_array_t* b = int64_smart_array_heap_new(len);
+    int64_smart_array_random_sequence(a);
+    int64_smart_array_random_sequence(b);
+
+    printf("destruct  %2u: %16p ", SMARTARR_SIMD_VLEN, a->data); fflush(0);
+
+    // warm up
+    int64_smart_array_add_destruct(a, b);
+
+
+    auto start_time = bench_start_timer();
+    for (unsigned int n = 0; n < times; ++n)
+    {
+        int64_smart_array_fill(a, 0);
+        int64_smart_array_add_destruct(a, b);
+        for (unsigned int i = 0; i < len; ++i) {
+            assert(a->data[i] == b->data[i]);
+        }
+    }
+    double tf = bench_stop_timer(&start_time);
+
+    double mops = (len * times) / (1000000.0 * tf);
+
+    printf("%10.8f    %f MOPS\n", tf, mops);
+
+    return tf;
+}
+
+#include <math.h>
+
 int main(void)
 {
     // cpuid | grep -A 15 "data cache (1)" | grep 'size synth' => 32K|48K
@@ -197,13 +230,16 @@ int main(void)
 
     printf("8 vs %u: %f = %f%%\n\n", SMARTARR_SIMD_VLEN, t2/t1, ((t2-t1)/t1)*100.0);
 
+    double t3 = bench5(len, times);
+    printf("non-distructive vs distructive: %f = %f%%\n\n", t1/t3, (fabs(t1-t3)/t3)*100.0);
+
     assert(misalign_next != nullptr);
 
     len = 1024*2*1024;
     times = 10;
     t1 = bench1(len, times);
     t2 = bench3(len, times);
-         bench4(len, times);
+    t3 = bench4(len, times);
 
     return 0;
 }

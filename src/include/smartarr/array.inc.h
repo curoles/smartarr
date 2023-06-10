@@ -403,12 +403,40 @@ _ARRAY_FN(add)(
     b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
     c = __builtin_assume_aligned(c, _SMART_ARRAY_ALIGN);
 
-    //#pragma GCC unroll 8
     #pragma GCC ivdep
     for (unsigned int i = 0; i < len; ++i) {
          c[i] = a[i] + b[i];
     }
     return c;
+}
+
+static inline
+_ARRAY_RO(2, 1) _ARRAY_RO(3, 1) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_ARRAY_FN(add_destruct)(
+    unsigned int len,
+          _ARRAY_TYPE a[len],
+    const _ARRAY_TYPE b[len])
+{
+    ARRAY_ASSERT_ALIGNED(a);
+    ARRAY_ASSERT_ALIGNED(b);
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+    b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
+
+    #pragma GCC ivdep
+    for (unsigned int i = 0; i < len; ++i) {
+         a[i] = a[i] + b[i];
+    }
+    return a;
+}
+
+static inline
+FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_SARRAY_FN(add_destruct)(_SMART_ARRAY_T* a, _SMART_ARRAY_T* b)
+{
+    unsigned int len = (a->len < b->len)? a->len : b->len;
+    return _ARRAY_FN(add_destruct)(len, a->data, b->data);
 }
 
 #ifdef _ARRAY_OMP_ENABLE
