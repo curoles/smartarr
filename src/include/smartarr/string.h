@@ -1,3 +1,9 @@
+/**@file
+ * @brief String that knows its own length and capacity.
+ * @author Igor Lesik 2023
+ *
+ *
+ */
 #pragma once
 
 #include <assert.h>
@@ -6,15 +12,27 @@
 
 #include "smartarr/defines.h"
 
+/** Struct that represents a string.
+ *
+ */
 typedef struct smart_string
 {
-    size_t capacity;
-    size_t len;
-    char* storage; // XXX align?
+    size_t capacity; ///< storage capacity
+    size_t len;      ///< number of characters in the string excluding null terminator
+    char* storage;   ///< array of bytes to store the string, XXX align?
 } smart_string_t;
 
 constexpr size_t smart_string_max_len = 1024* 1024;
 
+/** Function to init struct smart_string.
+ *
+ * Use macro to define and init a string:
+ *
+ * ```c
+ * SMART_STRING(mystr, 100);
+ * assert(mystr.capacity >= 100);
+ * ```
+ */
 static inline
 __attribute__((nonnull(1)))
 void

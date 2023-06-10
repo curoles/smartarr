@@ -40,6 +40,14 @@ enable_testing()
 add_subdirectory(test)
 add_subdirectory(bench)
 
+find_package(Doxygen
+    REQUIRED dot
+    OPTIONAL_COMPONENTS mscgen dia)
+if(DOXYGEN_FOUND)
+    message(STATUS "Doxygen ver : ${DOXYGEN_VERSION}")
+    add_subdirectory(doc)
+endif()
+
 message(STATUS "Host   CPU  : ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 message(STATUS "Target CPU  : ${CMAKE_SYSTEM_PROCESSOR}")
 message(STATUS "Compiler    : ${CMAKE_C_COMPILER_ID}")

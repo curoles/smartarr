@@ -1,4 +1,8 @@
-// Author: Igor Lesik 2023
+/**@file
+ * @brief Functions on array.
+ * @author Igor Lesik 2023
+ *
+ */
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -40,7 +44,7 @@
 #define ARRAY_ASSERT_ALIGNED(ptr)
 #endif
 
-/* Smart_array knows its own length.
+/** Smart_array knows its own length.
  *
  * Example:
  * ```
@@ -94,7 +98,7 @@ _SARRAY_FN(align_len)(size_t len)
     ptr->len = _ARRAY_len; \
     ptr;})
 
-/* Allocate smart_array on heap.
+/** Allocate smart_array on heap.
  *
  * Example:
  * ```

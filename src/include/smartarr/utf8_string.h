@@ -196,21 +196,11 @@ utf8_string_read_from_file(utf8_string_t* self, const char* filename)
 
     self->len = 0;
 
-    constexpr size_t buf_size = 1024*4;
-    char buf[buf_size];
-
     while (!feof(fd)) {
-        const size_t nr_new_bytes = fread(buf, sizeof(buf[0]), buf_size, fd);
+        const size_t nr_new_bytes = fread(&self->storage[self->len], 1, 4*1024, fd);
         if (nr_new_bytes == 0) {
             break;
         }
-
-        const size_t required_capacity = self->len + nr_new_bytes;
-        if (required_capacity > (self->capacity - 1)) {
-            utf8_string_resize(self, required_capacity + 2*buf_size);
-        }
-
-        __builtin_memcpy(&self->storage[self->len], buf, nr_new_bytes);
         self->len += nr_new_bytes;
     }
 
