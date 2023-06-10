@@ -366,6 +366,40 @@ _SARRAY_FN(bubble_sort)(_SMART_ARRAY_T* a)
 }
 
 static inline
+FN_ATTR_WARN_UNUSED_RESULT
+int
+_ARRAY_FN(qsort_compare)(const void *restrict pa, const void *restrict pb)
+{
+    _ARRAY_TYPE a = *((_ARRAY_TYPE*)pa);
+    _ARRAY_TYPE b = *((_ARRAY_TYPE*)pb);
+
+    // (a-b) does not work for unsigned types
+    return ( (a < b)? -1 : ( (a == b)? 0 : 1) );
+}
+
+static inline
+_ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_ARRAY_FN(qsort)(unsigned int len, _ARRAY_TYPE a[len])
+{
+    ARRAY_ASSERT_ALIGNED(a);
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+
+    qsort(a, len, sizeof(_ARRAY_TYPE), _ARRAY_FN(qsort_compare));
+
+    return a;
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_SARRAY_FN(qsort)(_SMART_ARRAY_T* a)
+{
+    return _ARRAY_FN(qsort)(a->len, a->data);
+}
+
+
+static inline
 _ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(random_sequence)(unsigned int len, _ARRAY_TYPE a[len])

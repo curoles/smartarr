@@ -48,21 +48,10 @@ void bench_bubble_sort(unsigned int len, unsigned int times,
 }
 
 static
-int int64_compare(const void* pa, const void* pb)
-{
-    int64_t a = *((int64_t*)pa);
-    int64_t b = *((int64_t*)pb);
-
-    //return ( (a < b)? -1 : ( (a == b)? 0 : 1) );
-    return a - b;
-}
-
-static
 int64_t*
 library_qsort(i64_smart_array_t* a)
 {
-    qsort(a->data, a->len, sizeof(int64_t), int64_compare);
-    return a->data;
+    return i64_smart_array_qsort(a);
 }
 
 static
