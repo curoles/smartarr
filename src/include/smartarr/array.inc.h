@@ -411,6 +411,11 @@ _ARRAY_FN(add)(
     return c;
 }
 
+#ifdef _ARRAY_OMP_ENABLE
+#include "omp_array.inc.h"
+#endif
+
+
 #undef _SMART_ARRAY
 #undef _SMART_ARRAY_T
 #undef _ARRAY_TYPE_EQ

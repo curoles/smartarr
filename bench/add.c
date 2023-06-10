@@ -6,7 +6,7 @@
 #include "smartarr/defines.h"
 #include "smartarr/bench.h"
 
-#define _SMART_ARRAY_ALIGN 64
+#define _ARRAY_OMP_ENABLE
 #define _ARRAY_TYPE int64_t
 #define _ARRAY_TYPE_NAME int64
 #include "smartarr/array.inc.h"
@@ -49,7 +49,7 @@ double bench1(unsigned int len, unsigned int times)
     int64_smart_array_random_sequence(b);
     int64_smart_array_fill(c, 0);
 
-    printf("Alignment 64: %8p ", a->data); fflush(0);
+    printf("Alignment %2u: %16p ", SMARTARR_SIMD_VLEN, a->data); fflush(0);
 
     // warm up
     int64_array_add(len, a->data, b->data, c->data);
@@ -82,7 +82,7 @@ double bench2(unsigned int len, unsigned int times)
     xint64_smart_array_random_sequence(b);
     xint64_smart_array_fill(c, 0);
 
-    printf("Alignment  8: %8p ", a->data); fflush(0);
+    printf("Alignment  8: %16p ", a->data); fflush(0);
 
     // warm up
     xint64_array_add(len, a->data, b->data, c->data);
@@ -103,6 +103,40 @@ double bench2(unsigned int len, unsigned int times)
     return tf;
 }
 
+double bench4(unsigned int len, unsigned int times)
+{
+    auto_free int64_smart_array_t* a = int64_smart_array_heap_new(len);
+    auto_free int64_smart_array_t* b = int64_smart_array_heap_new(len);
+    auto_free int64_smart_array_t* c = int64_smart_array_heap_new(len);
+    int64_smart_array_random_sequence(a);
+    int64_smart_array_random_sequence(b);
+    int64_smart_array_fill(c, 0);
+
+    printf("OMP for   %2u: %16p ", SMARTARR_SIMD_VLEN, a->data); fflush(0);
+
+    // warm up
+    int64_array_add(len, a->data, b->data, c->data);
+
+    omp_set_num_threads(2);
+
+    auto start_time = bench_start_timer();
+    for (unsigned int n = 0; n < times; ++n)
+    {
+        int64_smart_array_fill(c, 0);
+        int64_omp_array_add(len, a->data, b->data, c->data);
+        for (unsigned int i = 0; i < len; ++i) {
+            assert(c->data[i] == (a->data[i] + b->data[i]));
+        }
+    }
+    double tf = bench_stop_timer(&start_time);
+
+    double mops = (len * times) / (1000000.0 * tf);
+
+    printf("%10.8f    %f MOPS\n", tf, mops);
+
+    return tf;
+}
+
 #include <omp.h>
 
 double bench3(unsigned int len, unsigned int times)
@@ -114,7 +148,7 @@ double bench3(unsigned int len, unsigned int times)
     int64_smart_array_random_sequence(b);
     int64_smart_array_fill(c, 0);
 
-    printf("OpenMP      : %8p ", a->data); fflush(0);
+    printf("OpenMP      : %16p ", a->data); fflush(0);
 
     // warm up
     int64_array_add(len, a->data, b->data, c->data);
@@ -153,23 +187,23 @@ int main(void)
     // cpuid | grep -A 15 "data cache (1)" | grep 'size synth' => 32K|48K
     // 32K/sizeof(int64)=4K, 48K->6K
     // 3 arrays x 2K(8) = 6K(8)
-#if 1
-    constexpr unsigned int len = 1024*2; // stay in L1 data cache
-    constexpr unsigned int times = 1000*1000*10;
-#else
-    constexpr unsigned int len = 1024*2*512;
-    constexpr unsigned int times = 100;
-#endif
+
+    unsigned int len = 1024*2; // stay in L1 data cache
+    unsigned int times = 1000*1000*10;
 
     double t1 = bench1(len, times);
     auto_free void* misalign_next = malloc(11*64+1);
     double t2 = bench2(len, times);
 
-    printf("8 vs 64: %f = %f%%\n", t2/t1, ((t2-t1)/t1)*100.0);
+    printf("8 vs %u: %f = %f%%\n\n", SMARTARR_SIMD_VLEN, t2/t1, ((t2-t1)/t1)*100.0);
 
     assert(misalign_next != nullptr);
 
-    /*double t3 = */bench3(len, times);
+    len = 1024*2*1024;
+    times = 10;
+    t1 = bench1(len, times);
+    t2 = bench3(len, times);
+         bench4(len, times);
 
     return 0;
 }
