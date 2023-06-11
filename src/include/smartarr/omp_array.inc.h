@@ -4,10 +4,11 @@
 #define _OMP_SARRAY_FN(name) PPCAT(_ARRAY_TYPE_NAME, PPCAT(_omp_smart_array_, name))
 
 static inline
-_ARRAY_RO(2, 1) _ARRAY_RO(3, 1) _ARRAY_WO(4, 1) FN_ATTR_RETURNS_NONNULL
+_ARRAY_RO(3, 2) _ARRAY_RO(4, 2) _ARRAY_WO(5, 2) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _OMP_ARRAY_FN(add)(
-    unsigned int len,
+    unsigned int num_threads,
+    size_t len,
     const _ARRAY_TYPE a[len],
     const _ARRAY_TYPE b[len],
           _ARRAY_TYPE c[len])
@@ -19,10 +20,13 @@ _OMP_ARRAY_FN(add)(
     b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
     c = __builtin_assume_aligned(c, _SMART_ARRAY_ALIGN);
 
+    omp_set_num_threads(num_threads);
+
     #pragma omp parallel for
-    for (unsigned int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
          c[i] = a[i] + b[i];
     }
+
     return c;
 }
 

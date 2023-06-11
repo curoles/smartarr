@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "smartarr/defines.h"
 #include "smartarr/cpu.h"
@@ -61,7 +62,7 @@
  * ```
  */
 typedef struct _SMART_ARRAY {
-    unsigned int len;
+    size_t len;
     _ARRAY_TYPE data[] __attribute__((aligned(_SMART_ARRAY_ALIGN)));
 } _SMART_ARRAY_T;
 
@@ -136,18 +137,17 @@ _SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, size_t len)
 static inline
 _ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
 _ARRAY_TYPE
-_ARRAY_FN(get_at)(unsigned int len, const _ARRAY_TYPE a[len], unsigned int pos)
+_ARRAY_FN(get_at)(size_t len, const _ARRAY_TYPE a[len], size_t pos)
 {
-#ifdef _ASSERT_H
     assert(pos < len); // access with bounds checking
-#endif
+
     return a[pos];
 }
 
 static inline
 __attribute__((nonnull(1))) FN_ATTR_WARN_UNUSED_RESULT
 _ARRAY_TYPE
-_SARRAY_FN(get_at)(const _SMART_ARRAY_T* a, unsigned int pos)
+_SARRAY_FN(get_at)(const _SMART_ARRAY_T* a, size_t pos)
 {
     return _ARRAY_FN(get_at)(a->len, a->data, pos);
 }
@@ -155,7 +155,7 @@ _SARRAY_FN(get_at)(const _SMART_ARRAY_T* a, unsigned int pos)
 static inline
 _ARRAY_WO(2, 1)
 void
-_ARRAY_FN(set_at)(unsigned int len, _ARRAY_TYPE a[len], unsigned int pos, _ARRAY_TYPE val)
+_ARRAY_FN(set_at)(size_t len, _ARRAY_TYPE a[len], size_t pos, _ARRAY_TYPE val)
 {
 #ifdef _ASSERT_H
     assert(pos < len); // access with bounds checking
@@ -166,7 +166,7 @@ _ARRAY_FN(set_at)(unsigned int len, _ARRAY_TYPE a[len], unsigned int pos, _ARRAY
 static inline
 __attribute__((nonnull(1)))
 void
-_SARRAY_FN(set_at)(_SMART_ARRAY_T* a, unsigned int pos, _ARRAY_TYPE val)
+_SARRAY_FN(set_at)(_SMART_ARRAY_T* a, size_t pos, _ARRAY_TYPE val)
 {
     _ARRAY_FN(set_at)(a->len, a->data, pos, val);
 }
@@ -174,13 +174,13 @@ _SARRAY_FN(set_at)(_SMART_ARRAY_T* a, unsigned int pos, _ARRAY_TYPE val)
 static inline
 _ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
 optional_uint_t
-_ARRAY_FN(find)(unsigned int len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_to_find)
+_ARRAY_FN(find)(size_t len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_to_find)
 {
     ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
     optional_uint_t pos = {.present = false};
-    for (unsigned int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         if (_ARRAY_TYPE_EQ(a[i], val_to_find)) {
             pos.present = true;
             pos.value = i;
@@ -202,7 +202,7 @@ _SARRAY_FN(find)(_SMART_ARRAY_T* a, _ARRAY_TYPE val)
 static inline
 _ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
 bool
-_ARRAY_FN(contains)(unsigned int len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_to_find)
+_ARRAY_FN(contains)(size_t len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_to_find)
 {
     auto pos = _ARRAY_FN(find)(len, a, val_to_find);
 
@@ -212,7 +212,7 @@ _ARRAY_FN(contains)(unsigned int len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_
 static inline
 _ARRAY_RO(2, 1) _ARRAY_RO(3, 1) FN_ATTR_WARN_UNUSED_RESULT
 bool
-_ARRAY_FN(equal)(unsigned int len, const _ARRAY_TYPE a[len], const _ARRAY_TYPE b[len])
+_ARRAY_FN(equal)(size_t len, const _ARRAY_TYPE a[len], const _ARRAY_TYPE b[len])
 {
     ARRAY_ASSERT_ALIGNED(a);
     ARRAY_ASSERT_ALIGNED(b);
@@ -221,7 +221,7 @@ _ARRAY_FN(equal)(unsigned int len, const _ARRAY_TYPE a[len], const _ARRAY_TYPE b
 
     bool equal = true;
 
-    for (unsigned int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         if (!_ARRAY_TYPE_EQ(a[i], b[i])) {
             equal = false;
             break;
@@ -234,14 +234,14 @@ _ARRAY_FN(equal)(unsigned int len, const _ARRAY_TYPE a[len], const _ARRAY_TYPE b
 static inline
 _ARRAY_RO(2, 1) _ARRAY_WO(3, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
-_ARRAY_FN(copy)(unsigned int len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[len])
+_ARRAY_FN(copy)(size_t len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[len])
 {
     ARRAY_ASSERT_ALIGNED(src);
     ARRAY_ASSERT_ALIGNED(dst);
     src = __builtin_assume_aligned(src, _SMART_ARRAY_ALIGN);
     dst = __builtin_assume_aligned(dst, _SMART_ARRAY_ALIGN);
 
-    for (unsigned int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         dst[i] = src[i];
     }
 
@@ -251,7 +251,7 @@ _ARRAY_FN(copy)(unsigned int len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[le
 static inline
 _ARRAY_RO(2, 1) _ARRAY_WO(3, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
-_ARRAY_FN(memcopy)(unsigned int len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[len])
+_ARRAY_FN(memcopy)(size_t len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[len])
 {
     ARRAY_ASSERT_ALIGNED(src);
     ARRAY_ASSERT_ALIGNED(dst);
@@ -264,12 +264,12 @@ _ARRAY_FN(memcopy)(unsigned int len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst
 static inline
 _ARRAY_WO(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
-_ARRAY_FN(fill)(unsigned int len, _ARRAY_TYPE a[len], _ARRAY_TYPE val)
+_ARRAY_FN(fill)(size_t len, _ARRAY_TYPE a[len], _ARRAY_TYPE val)
 {
     ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
-    for (unsigned int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         a[i] = val;
     }
 
@@ -287,15 +287,15 @@ _SARRAY_FN(fill)(_SMART_ARRAY_T* a, _ARRAY_TYPE val)
 static inline
 _ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
-_ARRAY_FN(insertion_sort)(unsigned int len, _ARRAY_TYPE a[len])
+_ARRAY_FN(insertion_sort)(size_t len, _ARRAY_TYPE a[len])
 {
     ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
-    unsigned int j;
+    size_t j;
     _ARRAY_TYPE key;
 
-    for (unsigned int i = 1; i < len; ++i) {
+    for (size_t i = 1; i < len; ++i) {
         key = a[i];
         j = i;
  
@@ -331,16 +331,16 @@ _ARRAY_FN(swap_two_pointers)(_ARRAY_TYPE* a, _ARRAY_TYPE* b)
 static inline
 _ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
-_ARRAY_FN(bubble_sort)(unsigned int len, _ARRAY_TYPE a[len])
+_ARRAY_FN(bubble_sort)(size_t len, _ARRAY_TYPE a[len])
 {
     ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
     _ARRAY_TYPE tmp;
     bool swapped;
-    for (unsigned int step = 0; step < len - 1; ++step) {
+    for (size_t step = 0; step < len - 1; ++step) {
         swapped = false;
-        for (unsigned int i = 0; i < len - step - 1; ++i) {
+        for (size_t i = 0; i < len - step - 1; ++i) {
             if (_ARRAY_TYPE_LT(a[i + 1], a[i]) ) {
                 //_ARRAY_FN(swap_two_pointers)(&a[i], &a[i + 1]);
                 tmp = a[i+1]; a[i+1] = a[i]; a[i] = tmp;
@@ -380,7 +380,7 @@ _ARRAY_FN(qsort_compare)(const void *restrict pa, const void *restrict pb)
 static inline
 _ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
-_ARRAY_FN(qsort)(unsigned int len, _ARRAY_TYPE a[len])
+_ARRAY_FN(qsort)(size_t len, _ARRAY_TYPE a[len])
 {
     ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
@@ -402,15 +402,16 @@ _SARRAY_FN(qsort)(_SMART_ARRAY_T* a)
 static inline
 _ARRAY_RW(2, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
-_ARRAY_FN(random_sequence)(unsigned int len, _ARRAY_TYPE a[len])
+_ARRAY_FN(random_sequence)(size_t len, _ARRAY_TYPE a[len])
 {
-    for (unsigned int i = 0; i < len; ++i) {
+    // make a sequence [0, 1, 2, 3, 4...]
+    for (size_t i = 0; i < len; ++i) {
          a[i] = i;
     }
 
-    // randomly shuffle
-    for (unsigned int range = len; range > 1; --range) {
-        unsigned int random_index = rand() % range;
+    // randomly shuffle elements of the original sequence
+    for (size_t range = len; range > 1; --range) {
+        size_t random_index = rand() % range;
         _ARRAY_FN(swap_two_pointers)(&a[random_index], &a[range - 1]);
     }
 
@@ -429,7 +430,7 @@ static inline
 _ARRAY_RO(2, 1) _ARRAY_RO(3, 1) _ARRAY_WO(4, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(add)(
-    unsigned int len,
+    size_t len,
     const _ARRAY_TYPE a[len],
     const _ARRAY_TYPE b[len],
           _ARRAY_TYPE c[len])
@@ -442,7 +443,7 @@ _ARRAY_FN(add)(
     c = __builtin_assume_aligned(c, _SMART_ARRAY_ALIGN);
 
     #pragma GCC ivdep
-    for (unsigned int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
          c[i] = a[i] + b[i];
     }
     return c;
@@ -452,7 +453,7 @@ static inline
 _ARRAY_RO(2, 1) _ARRAY_RO(3, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(add_destruct)(
-    unsigned int len,
+    size_t len,
           _ARRAY_TYPE a[len],
     const _ARRAY_TYPE b[len])
 {
@@ -462,7 +463,7 @@ _ARRAY_FN(add_destruct)(
     b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
 
     #pragma GCC ivdep
-    for (unsigned int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
          a[i] = a[i] + b[i];
     }
     return a;
@@ -473,8 +474,58 @@ FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _SARRAY_FN(add_destruct)(_SMART_ARRAY_T* a, _SMART_ARRAY_T* b)
 {
-    unsigned int len = (a->len < b->len)? a->len : b->len;
+    size_t len = (a->len < b->len)? a->len : b->len;
     return _ARRAY_FN(add_destruct)(len, a->data, b->data);
+}
+
+static inline
+_ARRAY_RO(3, 1) _ARRAY_RO(6, 4) _ARRAY_WO(9, 7) FN_ATTR_RETURNS_NONNULL
+_ARRAY_TYPE*
+_ARRAY_FN(matrix_matrix_multiply)(
+    size_t len_a,
+    size_t cols_a,
+    const _ARRAY_TYPE a[len_a],
+    size_t len_b,
+    size_t cols_b,
+    const _ARRAY_TYPE b[len_b],
+    size_t len_c,
+    size_t cols_c,
+          _ARRAY_TYPE c[len_c])
+{
+    ARRAY_ASSERT_ALIGNED(a);
+    ARRAY_ASSERT_ALIGNED(b);
+    ARRAY_ASSERT_ALIGNED(c);
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+    b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
+    c = __builtin_assume_aligned(c, _SMART_ARRAY_ALIGN);
+
+    const size_t rows_a        = len_a / cols_a;
+    const size_t rows_b UNUSED = len_b / cols_b;
+    const size_t rows_c UNUSED = len_c / cols_c;
+    #ifdef _ARRAY_DEBUG
+        assert((len_a % cols_a) == 0);
+        assert((len_b % cols_b) == 0);
+        assert((len_c % cols_c) == 0);
+        assert(cols_a == rows_b);
+        assert(rows_a == rows_c);
+        assert(cols_b == cols_c);
+    #endif
+
+    #define _index_c matrix_index(ra, cb, cols_c)
+    #define _index_a matrix_index(ra,  k, cols_a)
+    #define _index_b matrix_index(k,  cb, cols_b)
+    for (size_t ra = 0; ra < rows_a; ++ra) {
+        for (size_t cb = 0; cb < cols_b; ++cb) {
+            for (size_t k = 0; k < cols_a; ++k) {
+                c[_index_c] += a[_index_a] * b[_index_b];
+            }
+        }
+    }
+    #undef _index_b
+    #undef _index_a
+    #undef _index_c
+
+    return c;
 }
 
 #ifdef _ARRAY_OMP_ENABLE

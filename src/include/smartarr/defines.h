@@ -1,3 +1,9 @@
+/**@file
+ * @brief     Helpful structs, functions and macros.
+ * @author    Igor Lesik 2023
+ * @copyright Igor Lesik 2023
+ *
+ */
 #pragma once
 
 #include <stdlib.h>
@@ -15,7 +21,7 @@
 #define FN_ATTR_RETURNS_NONNULL     __attribute__ ((returns_nonnull))
 
 
-/* Macro to define GCC extention "transparent union".
+/** Macro to define GCC extention "transparent union".
  *
  * Example:
  * ```
@@ -27,7 +33,7 @@
  */
 #define transparent_union(name) union __attribute__((__transparent_union__)) name
 
-/* C23 enum with specific underlying type.
+/** C23 enum with specific underlying type.
  *
  * Example:
  * ```
@@ -39,7 +45,7 @@
 #define typedef_enum(name, underlying_type) \
     typedef enum name : underlying_type
 
-/* Macro to define variable with auto cleanup function
+/** Macro to define variable with auto cleanup function
  * that is called when the variable lifetime is over.
  *
  * Example:
@@ -50,14 +56,14 @@
  */
 #define auto_cleanup(fn, T) __attribute__((cleanup(fn))) T
 
-/* To be used as `__attribute__((cleanup(cleanup_free)))`
+/** To be used as `__attribute__((cleanup(cleanup_free)))`
  *
  */
 static inline void cleanup_free(void* p) {
     free(*(void**)p);
 }
 
-/* Automatically free heap allocated memory.
+/** Automatically free heap allocated memory.
  *
  * Example:
  * ```
@@ -67,7 +73,7 @@ static inline void cleanup_free(void* p) {
 #define auto_free __attribute__((cleanup(cleanup_free)))
 
 
-/* Count number of trailing zero bits in an integer.
+/** Count number of trailing zero bits in an integer.
  *
  */
 #define ctz(x) _Generic( (x), \
@@ -76,7 +82,7 @@ static inline void cleanup_free(void* p) {
                    default: __builtin_ctz \
                 )(x)
 
-/* For loop over each set bit in an integer.
+/** For loop over each set bit in an integer.
  *
  * Example:
  * ```
@@ -93,7 +99,7 @@ static inline void cleanup_free(void* p) {
     for (unsigned int pos = ctz(bits); bits; \
         bits &= bits - 1, pos = ctz(bits))
 
-/* IF-ELSE statement that returns a value. 
+/** IF-ELSE statement that returns a value. 
  *
  * A compound statement enclosed in parentheses may appear as an expression in GNU C.
  *
@@ -117,7 +123,7 @@ static inline void cleanup_free(void* p) {
 #define return_else ):(
 #define return_else_if(cond) ):( (cond) ? (
 
-/* Macro to define Optional value type.
+/** Macro to define Optional value type.
  *
  * Example:
  * ```
@@ -138,7 +144,7 @@ static inline void cleanup_free(void* p) {
 typedef optional_type(int) optional_int_t;
 typedef optional_type(unsigned int) optional_uint_t;
 
-/* Macro to define value type with an error.
+/** Macro to define value type with an error.
  *
  * Example:
  * ```
@@ -156,7 +162,7 @@ typedef optional_type(unsigned int) optional_uint_t;
  */
 #define error_value_type(T, E) struct { union {T value; E error;}; bool iserr; }
 
-/* Find parent struct pointer by its child pointer.
+/** Find parent struct pointer by its child pointer.
  *
  * Example:
  * ```
@@ -190,7 +196,7 @@ typedef optional_type(unsigned int) optional_uint_t;
     const typeof( ((type *)0)->member ) *__mptr = (ptr); \
     (type *)( (char *)__mptr - offsetof(type,member) );})
 
-/* Return number of elements in fixed length array.
+/** Return number of elements in fixed length array.
  *
  * Example:
  * ```
@@ -204,4 +210,17 @@ typedef optional_type(unsigned int) optional_uint_t;
  */
 #define fixlen_array_len(a) ((sizeof(a)) / (sizeof(a[0])))
 
+/** Return index in array that represents a matrix.
+ *
+ *
+ * https://en.wikipedia.org/wiki/Row-_and_column-major_order
+ *
+ */
+static inline
+FN_ATTR_WARN_UNUSED_RESULT FN_ATTR_CONST
+size_t
+matrix_index(size_t row, size_t col, size_t nr_cols)
+{
+    return (col + row * nr_cols);
+}
 

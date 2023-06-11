@@ -19,6 +19,7 @@ set(tests
     string
     utf8
     list
+    matrix
 )
 
 #set(atomic4_cc_flags -std=c11 -latomic)
