@@ -7,7 +7,7 @@
 // see https://github.com/silentbicycle/greatest
 #include "third/greatest.h"
 
-int_smart_array_t global_a = {3, {1, 2, 3}};
+int_smart_array_t global_a = {3, 1, {1, 2, 3}};
 
 TEST make_global(void)
 {
@@ -20,14 +20,14 @@ TEST make_global(void)
 
 TEST make_static(void)
 {
-    static int_smart_array_t static_b = {3, {4, 5, 6}};
+    static int_smart_array_t static_b = {3, 1, {4, 5, 6}};
 
     ASSERT_EQ(4, static_b.data[0]);
     ASSERT_EQ(4, int_smart_array_get_at(&static_b, 0));
     ASSERT_EQ(5, static_b.data[1]);
     ASSERT_EQ(6, static_b.data[2]);
 
-    static int_smart_array_t static_c = {3, {[0 ... 2]=7}};
+    static int_smart_array_t static_c = {3, 1, {[0 ... 2]=7}};
 
     ASSERT_EQ(7, static_c.data[0]);
     ASSERT_EQ(7, static_c.data[1]);

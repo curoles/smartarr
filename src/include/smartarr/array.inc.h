@@ -49,11 +49,11 @@
  *
  * Example:
  * ```
- * static int_smart_array_t static_b = {3, {4, 5, 6}};
+ * static int_smart_array_t static_b = {3, 1, {4, 5, 6}};
  * assert(static_b.data[0] == 4);
  * assert(static_b.data[1] == 5);
  * assert(static_b.data[2] == 6);
- * static int_smart_array_t static_c = {3, {[0 ... 2]=7}};
+ * static int_smart_array_t static_c = {3, 1, {[0 ... 2]=7}};
  *
  * auto_free int_smart_array_t* heap_a = int_smart_array_heap_new(100, aligned_alloc);
  * d = heap_a->data;
@@ -63,6 +63,7 @@
  */
 typedef struct _SMART_ARRAY {
     size_t len;
+    size_t num_cols;
     _ARRAY_TYPE data[] __attribute__((aligned(_SMART_ARRAY_ALIGN)));
 } _SMART_ARRAY_T;
 
@@ -97,6 +98,7 @@ _SARRAY_FN(align_len)(size_t len)
     ARRAY* ptr = (ARRAY*) \
         __builtin_alloca_with_align(sizeof(ARRAY) + aligned_len*sizeof(T), 8*_SMART_ARRAY_ALIGN); \
     ptr->len = _ARRAY_len; \
+    ptr->num_cols = 1; \
     ptr;})
 
 /** Allocate smart_array on heap.
@@ -115,6 +117,7 @@ _SARRAY_FN(heap_new)(size_t len)
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
         aligned_alloc(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
+    ptr->num_cols = 1;
     ARRAY_ASSERT_ALIGNED(ptr->data);
     return ptr;
 }
@@ -128,6 +131,7 @@ _SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, size_t len)
     _SMART_ARRAY_T* ptr = (_SMART_ARRAY_T*)
         aligned_alloc(_SMART_ARRAY_ALIGN, sizeof(_SMART_ARRAY_T) + aligned_len*sizeof(_ARRAY_TYPE));
     ptr->len = len;
+    ptr->num_cols = self->num_cols;
     __builtin_memcpy(ptr->data, self->data,
         ((self->len < ptr->len)? self->len : ptr->len) * sizeof(_ARRAY_TYPE));
     ARRAY_ASSERT_ALIGNED(ptr->data);

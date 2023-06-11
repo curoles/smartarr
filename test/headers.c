@@ -12,7 +12,7 @@
 
 TEST array(void)
 {
-    static i32_smart_array_t a = {3, {4, 5, 6}};
+    static i32_smart_array_t a = {3, 1, {4, 5, 6}};
 
     ASSERT_EQ(4, a.data[0]);
     ASSERT_EQ(4, i32_smart_array_get_at(&a, 0));
