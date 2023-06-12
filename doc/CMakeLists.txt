@@ -17,6 +17,7 @@ set(DOXYGEN_PREDEFINED "__attribute__((x))="
 #HTML_EXTRA_STYLESHEET https://github.com/jothepro/doxygen-awesome-css?
 
 doxygen_add_docs(doc
+    ../../doc/main_page.md
     smartarr/defines.h
     smartarr/array.inc.h
     smartarr/string.h

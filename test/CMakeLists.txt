@@ -22,7 +22,7 @@ set(tests
     matrix
 )
 
-#set(atomic4_cc_flags -std=c11 -latomic)
+set(matrix_cc_flags -fopenmp)
 #set(test8_cc_flags ${CMAKE_CURRENT_SOURCE_DIR}/test8.S)
 
 foreach(test_name IN LISTS tests)

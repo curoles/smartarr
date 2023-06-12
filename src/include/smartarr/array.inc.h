@@ -17,6 +17,7 @@
 
 #define _ARRAY_FN(name) PPCAT(_ARRAY_TYPE_NAME, PPCAT(_array_, name))
 #define _SARRAY_FN(name) PPCAT(_ARRAY_TYPE_NAME, PPCAT(_smart_array_, name))
+#define _MATRIX_FN(name) PPCAT(_ARRAY_TYPE_NAME, PPCAT(_matrix_, name))
 
 #define _ARRAY_RO(ref_index, size_index) __attribute__ ((access (read_only, ref_index, size_index)))
 #define _ARRAY_WO(ref_index, size_index) __attribute__ ((access (write_only, ref_index, size_index)))
@@ -173,6 +174,22 @@ void
 _SARRAY_FN(set_at)(_SMART_ARRAY_T* a, size_t pos, _ARRAY_TYPE val)
 {
     _ARRAY_FN(set_at)(a->len, a->data, pos, val);
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_WARN_UNUSED_RESULT
+_ARRAY_TYPE
+_MATRIX_FN(get_at)(const _SMART_ARRAY_T* a, size_t row, size_t col)
+{
+    return a->data[matrix_index(row , col, a->num_cols)];
+}
+
+static inline
+__attribute__((nonnull(1)))
+void
+_MATRIX_FN(set_at)(_SMART_ARRAY_T* a, size_t row, size_t col, _ARRAY_TYPE val)
+{
+    a->data[matrix_index(row , col, a->num_cols)] = val;
 }
 
 static inline
@@ -532,6 +549,17 @@ _ARRAY_FN(matrix_matrix_multiply)(
     return c;
 }
 
+static inline
+FN_ATTR_RETURNS_NONNULL __attribute__((nonnull(1,2,3)))
+_ARRAY_TYPE*
+_MATRIX_FN(matrix_multiply)(_SMART_ARRAY_T* a, _SMART_ARRAY_T* b, _SMART_ARRAY_T* c)
+{
+    return _ARRAY_FN(matrix_matrix_multiply)(
+        a->len, a->num_cols, a->data,
+        b->len, b->num_cols, b->data,
+        c->len, c->num_cols, c->data);
+}
+
 #ifdef _ARRAY_OMP_ENABLE
 #include "omp_array.inc.h"
 #endif
@@ -546,6 +574,7 @@ _ARRAY_FN(matrix_matrix_multiply)(
 #undef _ARRAY_RW
 #undef _ARRAY_FN
 #undef _SARRAY_FN
+#undef _MATRIX_FN
 #undef PPCAT_NX
 #undef PPCAT
 
