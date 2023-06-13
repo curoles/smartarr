@@ -1,1 +1,1 @@
-# _smartarr_ - Pure C "smart array" functions
+# _smartarr_ - C header only library of array functions

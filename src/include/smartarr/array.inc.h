@@ -140,6 +140,16 @@ _SARRAY_FN(heap_realloc)(_SMART_ARRAY_T* self, size_t len)
 }
 
 static inline
+FN_ATTR_WARN_UNUSED_RESULT
+_SMART_ARRAY_T*
+_MATRIX_FN(new)(size_t rows, size_t cols)
+{
+    _SMART_ARRAY_T* ptr = _SARRAY_FN(heap_new)(rows * cols);
+    ptr->num_cols = cols;
+    return ptr;
+}
+
+static inline
 _ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
 _ARRAY_TYPE
 _ARRAY_FN(get_at)(size_t len, const _ARRAY_TYPE a[len], size_t pos)
@@ -531,6 +541,8 @@ _ARRAY_FN(matrix_matrix_multiply)(
         assert(rows_a == rows_c);
         assert(cols_b == cols_c);
     #endif
+
+    __builtin_memset(c, 0, len_c*sizeof(_ARRAY_TYPE));
 
     #define _index_c matrix_index(ra, cb, cols_c)
     #define _index_a matrix_index(ra,  k, cols_a)

@@ -15,10 +15,11 @@ endif()
 set(benches
     add
     sort
+    matrix_mul
 )
 
 set(add_cc_flags -fopenmp)
-#set(test8_cc_flags ${CMAKE_CURRENT_SOURCE_DIR}/test8.S)
+set(matrix_mul_cc_flags -fopenmp)
 
 foreach(bench_name IN LISTS benches)
 
