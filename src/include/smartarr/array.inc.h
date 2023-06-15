@@ -544,21 +544,17 @@ _ARRAY_FN(matrix_matrix_multiply)(
 
     __builtin_memset(c, 0, len_c*sizeof(_ARRAY_TYPE));
 
-    #define _index_c matrix_index(ra, cb, cols_c)
-    #define _index_a matrix_index(ra,  k, cols_a)
-    #define _index_b matrix_index(k,  cb, cols_b)
     // order (i,j,k) changed to (i,k,j), now for c and b we move along row and
     // therefore along cache line
     for (size_t ra = 0; ra < rows_a; ++ra) {
         for (size_t k = 0; k < cols_a; ++k) {
             for (size_t cb = 0; cb < cols_b; ++cb) {
-                c[_index_c] += a[_index_a] * b[_index_b];
+                c[ra*cols_c + cb] +=
+                    a[ra*cols_a + k] *
+                    b[k*cols_b + cb];
             }
         }
     }
-    #undef _index_b
-    #undef _index_a
-    #undef _index_c
 
     return c;
 }

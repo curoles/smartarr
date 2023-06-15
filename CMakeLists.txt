@@ -23,7 +23,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 set(C_WARN_FLAGS  "-Wall -Wextra -Werror")
-set(C_OPT_FLAGS   "-O3 -march=native -ftree-vectorize")
+set(C_OPT_FLAGS   "-O3 -march=native -ftree-vectorize -fprefetch-loop-arrays")
 set(C_EXTRA_FLAGS "")
 set(CMAKE_C_FLAGS "${C_WARN_FLAGS} ${C_OPT_FLAGS} ${C_EXTRA_FLAGS}")
 #set(CMAKE_CXX_FLAGS "...")

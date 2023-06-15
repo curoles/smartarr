@@ -48,13 +48,13 @@ double bench_omp_mx_mx_mul(
     f64_smart_array_random_sequence(a);
     f64_smart_array_random_sequence(b);
 
-    f64_omp_matrix_matrix_multiply(4, a, b, c);
+    f64_omp_matrix_matrix_multiply(0, a, b, c);
 
     printf("omp matrix matrix mul "); fflush(0);
 
     double start_time = omp_get_wtime();
     for (unsigned int i = 0; i < times_repeat; ++i) {
-        f64_omp_matrix_matrix_multiply(4, a, b, c);
+        f64_omp_matrix_matrix_multiply(0, a, b, c);
     }
     double time = omp_get_wtime() - start_time;
 
@@ -80,6 +80,7 @@ int main(void)
 {
     size_t a_rows = 1024*4, a_cols = 1024*3;
     size_t b_rows = a_cols, b_cols = 1024*2;
+
     unsigned int times = 1;//000;
 
     bench_mx_mx_mul(a_rows, a_cols, b_rows, b_cols, times);
