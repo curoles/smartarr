@@ -21,7 +21,9 @@ _OMP_ARRAY_FN(add)(
     b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
     c = __builtin_assume_aligned(c, _SMART_ARRAY_ALIGN);
 
-    omp_set_num_threads(num_threads);
+    if (num_threads) {
+        omp_set_num_threads(num_threads);
+    }
 
     #pragma omp parallel for
     for (size_t i = 0; i < len; ++i) {
@@ -39,17 +41,24 @@ _OMP_ARRAY_FN(find_max)(size_t len, const _ARRAY_TYPE a[len])
     ARRAY_ASSERT_ALIGNED(a);
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
-    size_t pos = 0;
-    _ARRAY_TYPE max_val = a[0];
+    typedef struct { _ARRAY_TYPE val; size_t pos; } val_pos_tuple_t;
+    val_pos_tuple_t max_pos = {a[0], 0};
 
-    #pragma omp parallel for reduction(max:max_val) 
-    for (size_t i = 0; i < len; ++i) {
-        bool max_val_lt_a = max_val < a[i]; 
-        max_val = max_val_lt_a ? a[i] : max_val;
-        pos     = max_val_lt_a ? i : pos;
+    #pragma omp declare reduction(get_max : val_pos_tuple_t :\
+        omp_out = omp_out.val > omp_in.val ? omp_out : omp_in)\
+        initializer (omp_priv=(omp_orig))
+
+    #pragma omp parallel
+    {
+        #pragma omp for nowait reduction(get_max : max_pos)
+        for (size_t i = 0; i < len; ++i) {
+            if (a[i] > max_pos.val) { 
+                max_pos.val = a[i];
+                max_pos.pos = i;
+            }
+        }
     }
-
-    return pos;
+    return max_pos.pos;
 }
 
 static inline
@@ -57,7 +66,7 @@ __attribute__((nonnull(1))) FN_ATTR_WARN_UNUSED_RESULT
 size_t
 _OMP_SARRAY_FN(find_max)(_SMART_ARRAY_T* a)
 {
-    return _ARRAY_FN(find_max)(a->len, a->data);
+    return _OMP_ARRAY_FN(find_max)(a->len, a->data);
 }
 
 static inline

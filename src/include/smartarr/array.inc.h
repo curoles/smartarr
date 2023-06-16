@@ -271,7 +271,7 @@ _ARRAY_FN(find_max)(size_t len, const _ARRAY_TYPE a[len])
     _ARRAY_TYPE max_val = a[0];
 
     for (size_t i = 0; i < len; ++i) {
-        bool max_val_lt_a = max_val < a[i]; 
+        const bool max_val_lt_a = max_val < a[i]; 
         max_val = max_val_lt_a ? a[i] : max_val;
         pos     = max_val_lt_a ? i : pos;
     }

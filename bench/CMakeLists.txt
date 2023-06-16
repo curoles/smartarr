@@ -20,6 +20,7 @@ set(benches
 )
 
 set(add_cc_flags -fopenmp)
+set(find_cc_flags -fopenmp)
 set(matrix_mul_cc_flags -fopenmp)
 
 foreach(bench_name IN LISTS benches)

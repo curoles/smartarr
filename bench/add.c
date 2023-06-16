@@ -115,7 +115,7 @@ double bench4(unsigned int len, unsigned int times)
     printf("OMP for   %2u: %16p ", SMARTARR_SIMD_VLEN, a->data); fflush(0);
 
     // warm up
-    int64_omp_array_add(2, len, a->data, b->data, c->data);
+    int64_omp_array_add(0, len, a->data, b->data, c->data);
 
     auto start_time = bench_start_timer();
     for (unsigned int n = 0; n < times; ++n)
