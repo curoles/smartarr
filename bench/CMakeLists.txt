@@ -14,6 +14,7 @@ endif()
 
 set(benches
     add
+    find
     sort
     matrix_mul
 )

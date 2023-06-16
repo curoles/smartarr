@@ -211,7 +211,26 @@ _ARRAY_FN(find)(size_t len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_to_find)
     a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
 
     optional_uint_t pos = {.present = false};
-    for (size_t i = 0; i < len; ++i) {
+
+
+    constexpr size_t step_size = 32;
+    size_t steps = len / step_size;
+    size_t alen = steps * step_size;
+
+    for (size_t i = 0; i < alen; i += step_size) {
+        long unsigned int positions = 0;
+        for (size_t j = 0; j < step_size; ++j) {
+            positions |= (_ARRAY_TYPE_EQ(a[i+j], val_to_find)? 1:0) << j;
+        }
+        int found = __builtin_popcountl(positions);
+        if (found) {
+            pos.present = true;
+            pos.value = i + __builtin_ffsl(positions) - 1;
+            return pos;
+        }
+    }
+
+    for (size_t i = alen; i < len; ++i) {
         if (_ARRAY_TYPE_EQ(a[i], val_to_find)) {
             pos.present = true;
             pos.value = i;
@@ -238,6 +257,34 @@ _ARRAY_FN(contains)(size_t len, const _ARRAY_TYPE a[len], _ARRAY_TYPE val_to_fin
     auto pos = _ARRAY_FN(find)(len, a, val_to_find);
 
     return pos.present;
+}
+
+static inline
+_ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
+size_t
+_ARRAY_FN(find_max)(size_t len, const _ARRAY_TYPE a[len])
+{
+    ARRAY_ASSERT_ALIGNED(a);
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+
+    size_t pos = 0;
+    _ARRAY_TYPE max_val = a[0];
+
+    for (size_t i = 0; i < len; ++i) {
+        bool max_val_lt_a = max_val < a[i]; 
+        max_val = max_val_lt_a ? a[i] : max_val;
+        pos     = max_val_lt_a ? i : pos;
+    }
+
+    return pos;
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_WARN_UNUSED_RESULT
+size_t
+_SARRAY_FN(find_max)(_SMART_ARRAY_T* a)
+{
+    return _ARRAY_FN(find_max)(a->len, a->data);
 }
 
 static inline

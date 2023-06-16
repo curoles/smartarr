@@ -32,6 +32,35 @@ _OMP_ARRAY_FN(add)(
 }
 
 static inline
+_ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
+size_t
+_OMP_ARRAY_FN(find_max)(size_t len, const _ARRAY_TYPE a[len])
+{
+    ARRAY_ASSERT_ALIGNED(a);
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+
+    size_t pos = 0;
+    _ARRAY_TYPE max_val = a[0];
+
+    #pragma omp parallel for reduction(max:max_val) 
+    for (size_t i = 0; i < len; ++i) {
+        bool max_val_lt_a = max_val < a[i]; 
+        max_val = max_val_lt_a ? a[i] : max_val;
+        pos     = max_val_lt_a ? i : pos;
+    }
+
+    return pos;
+}
+
+static inline
+__attribute__((nonnull(1))) FN_ATTR_WARN_UNUSED_RESULT
+size_t
+_OMP_SARRAY_FN(find_max)(_SMART_ARRAY_T* a)
+{
+    return _ARRAY_FN(find_max)(a->len, a->data);
+}
+
+static inline
 _ARRAY_RO(4, 2) _ARRAY_RO(7, 5) _ARRAY_WO(10, 8) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _OMP_ARRAY_FN(matrix_matrix_multiply)(
