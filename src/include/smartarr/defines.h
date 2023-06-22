@@ -224,10 +224,10 @@ matrix_index(size_t row, size_t col, size_t nr_cols)
     return (col + row * nr_cols);
 }
 
-#define _GET_NTH_ARG(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, N, ...) N
+#define _GET_NTH_ARG(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14,  N, ...) N
 
 // Count how many args are in a variadic macro. Only works for up to N-2 args.
-#define COUNT_VARARGS(...) _GET_NTH_ARG("ignored", ##__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+#define COUNT_VARARGS(...) _GET_NTH_ARG("ignored", ##__VA_ARGS__, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
 static_assert(COUNT_VARARGS(1,2,3) == 3);
 static_assert(COUNT_VARARGS(1,2) == 2);
