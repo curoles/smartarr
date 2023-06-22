@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <stddef.h>
 #include <stdlib.h>
 
 #define STDC17 201710L

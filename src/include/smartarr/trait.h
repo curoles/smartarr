@@ -1,3 +1,86 @@
+/**@file
+ * @brief     Macros to implement simple trait object model.
+ * @author    Igor Lesik 2023
+ * @copyright Igor Lesik 2023
+ *
+ * Example of using trait macros:
+ *
+ * ```
+ * // Define Shape trait with 2 methods.
+ * TRAIT(Shape,
+ *     float (*area)(Shape*),
+ *     float (*perimeter)(Shape*)
+ * )
+ * 
+ * // Rectangle implements trait Shape.
+ * typedef TRAIT_IMPL(Rectangle, Shape)
+ *     float width;
+ *     float height;
+ * } Rectangle;
+ * 
+ * // Area of rectangle.
+ * static float rectangle_area(Shape* shape) {
+ *     Rectangle* rec = (Rectangle*)shape;
+ *     return rec->width * rec->height;
+ * }
+ * 
+ * // Perimeter of rectangle.
+ * static float rectangle_perimeter(Shape* shape) {
+ *     Rectangle* rec = (Rectangle*)shape;
+ *     return (rec->width + rec->height) * 2;
+ * }
+ * 
+ * // Circle implements trait Shape.
+ * typedef TRAIT_IMPL(Circle, Shape)
+ *     float radius;
+ * } Circle;
+ * 
+ * static float circle_area(Shape* shape) {
+ *     Circle* circle = (Circle*)shape;
+ *     return circle->radius * circle->radius * 2.0 * 3.14;
+ * }
+ * 
+ * static float circle_perimeter(Shape* shape) {
+ *     Circle* circle = (Circle*)shape;
+ *     return circle->radius * 2.0 * 3.14;
+ * }
+ * 
+ * TEST test_shapes(void)
+ * {
+ *     Rectangle rectangle = {
+ *         .trait = {
+ *             .method = {
+ *                 .area = rectangle_area,
+ *                 .perimeter = rectangle_perimeter
+ *             }
+ *         },
+ *         .width = 2.0,
+ *         .height = 3.0
+ *     };
+ * 
+ *     Shape* shape = (Shape*)&rectangle;
+ *     ASSERT_EQ(2.0*3.0, shape->method.area(shape));
+ *     ASSERT_EQ((2.0 + 3.0)*2, shape->method.perimeter(shape));
+ * 
+ *     Circle circle = {
+ *         .trait = {
+ *             .method = {
+ *                 .area = circle_area,
+ *                 .perimeter = circle_perimeter
+ *             }
+ *         },
+ *         .radius = 3.0
+ *     };
+ *     shape = (Shape*)&circle;
+ *     ASSERT_EQ_FMT(3.0f*3.0f*2.0f*3.14f, shape->method.area(shape), "%f");
+ *     ASSERT_EQ(3.0f*2.0f*3.14f, shape->method.perimeter(shape));
+ * 
+ *     PASS();
+ * }
+ * ```
+ *
+ */
+
 #pragma once
 
 #include "smartarr/defines.h"
