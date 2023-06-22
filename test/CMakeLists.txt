@@ -20,6 +20,7 @@ endif()
 
 set(tests
     headers
+    trait
     array
     string
     utf8
