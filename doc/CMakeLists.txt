@@ -19,6 +19,7 @@ set(DOXYGEN_PREDEFINED "__attribute__((x))="
 doxygen_add_docs(doc
     ../../doc/main_page.md
     smartarr/defines.h
+    smartarr/trait.h
     smartarr/array.inc.h
     smartarr/string.h
     smartarr/utf8_string.h

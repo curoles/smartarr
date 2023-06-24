@@ -69,7 +69,7 @@ TEST test_omp_matrix_matrix_mul(void)
     static f64_smart_array_t b = {rb*cb, cb, {1,2,3,4,5,6}};
     static f64_smart_array_t c = {ra*cb, cb, {[0 ... 11]=0}};
 
-    f64_omp_matrix_matrix_multiply(2, &a, &b, &c);
+    f64_omp_matrix_matrix_multiply(&a, &b, &c);
 
     #define _EL(a,r,c) f64_matrix_get_at(&a,r,c)
     ASSERT_EQ(

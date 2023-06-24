@@ -114,14 +114,17 @@ double bench4(unsigned int len, unsigned int times)
 
     printf("OMP for   %2u: %16p ", SMARTARR_SIMD_VLEN, a->data); fflush(0);
 
+    int num_threads_old = omp_get_num_threads();
+    omp_set_num_threads(2);
+
     // warm up
-    int64_omp_array_add(0, len, a->data, b->data, c->data);
+    int64_omp_array_add(len, a->data, b->data, c->data);
 
     auto start_time = bench_start_timer();
     for (unsigned int n = 0; n < times; ++n)
     {
         int64_smart_array_fill(c, 0);
-        int64_omp_array_add(2, len, a->data, b->data, c->data);
+        int64_omp_array_add(len, a->data, b->data, c->data);
         for (unsigned int i = 0; i < len; ++i) {
             assert(c->data[i] == (a->data[i] + b->data[i]));
         }
@@ -131,6 +134,8 @@ double bench4(unsigned int len, unsigned int times)
     double mops = (len * times) / (1000000.0 * tf);
 
     printf("%10.8f    %f MOPS\n", tf, mops);
+
+    omp_set_num_threads(num_threads_old);
 
     return tf;
 }

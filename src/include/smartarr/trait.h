@@ -79,6 +79,68 @@
  * }
  * ```
  *
+ * Example of a class implementing multiple traits:
+ *
+ * ```
+ * TRAIT(Color,
+ *     int (*get)(Color*)
+ * )
+ * 
+ * // ColoredRectangle implements trait Shape and trait Color.
+ * typedef struct ColoredRectangle
+ * {
+ *     Color color;
+ *     Shape shape;
+ * 
+ *     float width;
+ *     float height;
+ *     int color_id;
+ * } ColoredRectangle;
+ * 
+ * static float colored_rectangle_perimeter(Shape* shape) {
+ *     ColoredRectangle* rec = container_of(shape, ColoredRectangle, shape);
+ *     return (rec->width + rec->height) * 2;
+ * }
+ * 
+ * static float colored_rectangle_area(Shape* shape) {
+ *     ColoredRectangle* rec = container_of(shape, ColoredRectangle, shape);
+ *     return (rec->width * rec->height);
+ * }
+ * 
+ * static int colored_rectangle_get_color(Color* color) {
+ *     ColoredRectangle* rec = container_of(color, ColoredRectangle, color);
+ *     return rec->color_id;
+ * }
+ * 
+ * TEST test_colored_shapes(void)
+ * {
+ *     ColoredRectangle rectangle = {
+ *         .color = {
+ *             .method = {
+ *                 .get = colored_rectangle_get_color
+ *             }
+ *         },
+ *         .shape = {
+ *             .method = {
+ *                 .area = colored_rectangle_area,
+ *                 .perimeter = colored_rectangle_perimeter
+ *             }
+ *         },
+ *         .width = 2.0,
+ *         .height = 3.0,
+ *         .color_id = 42
+ *     };
+ * 
+ *     Shape* colored_shape = &rectangle.shape;
+ *     ASSERT_EQ(2.0*3.0, colored_shape->method.area(colored_shape));
+ *     ASSERT_EQ((2.0 + 3.0)*2, colored_shape->method.perimeter(colored_shape));
+ * 
+ *     Color* shape_color = &rectangle.color;
+ *     ASSERT_EQ(42, shape_color->method.get(shape_color));
+ * 
+ *     PASS();
+ * }
+ * ```
  */
 
 #pragma once
@@ -110,7 +172,19 @@
     _ADD_SEMICOL1, _ADD_SEMICOL0)(__VA_ARGS__)
 
 
-
+/** Trait is a struct with function pointers.
+ *
+ * Example:
+ *
+ * ```
+ * // Define Shape trait with 2 methods.
+ * TRAIT(Shape,
+ *     float (*area)(Shape*),
+ *     float (*perimeter)(Shape*)
+ * )
+ * ```
+ *
+ */
 #define TRAIT(Name, ...) \
     typedef struct Name Name; \
     typedef struct Trait##Name { \
@@ -118,6 +192,37 @@
     } Trait##Name; \
     struct Name {Trait##Name method;};
 
+/** Aggregate trait struct iside implementation struct.
+ *
+ * Example:
+ *
+ * ```
+ * typedef TRAIT_IMPL(Rectangle, Shape)
+ *     float width;
+ *     float height;
+ * } Rectangle;
+ * 
+ * static float rectangle_area(Shape* shape) {
+ *     Rectangle* rec = (Rectangle*)shape;
+ *     return rec->width * rec->height;
+ * }
+ *
+ * Rectangle rectangle = {
+ *     .trait = {
+ *         .method = {
+ *             .area = rectangle_area,
+ *             .perimeter = rectangle_perimeter
+ *         }
+ *     },
+ *     .width = 2.0,
+ *     .height = 3.0
+ * };
+ * 
+ * Shape* shape = (Shape*)&rectangle;
+ * ASSERT_EQ(2.0*3.0, shape->method.area(shape));
+ *
+ * ```
+ */
 #define TRAIT_IMPL(Name, Trait) \
     struct Name { Trait trait;
 

@@ -310,6 +310,30 @@ _ARRAY_FN(equal)(size_t len, const _ARRAY_TYPE a[len], const _ARRAY_TYPE b[len])
 }
 
 static inline
+_ARRAY_RO(2, 1) _ARRAY_RO(3, 1) FN_ATTR_WARN_UNUSED_RESULT
+bool
+_ARRAY_FN(equal_with_tolerance)(size_t len,
+    const _ARRAY_TYPE a[len], const _ARRAY_TYPE b[len], _ARRAY_TYPE tolerance)
+{
+    ARRAY_ASSERT_ALIGNED(a);
+    ARRAY_ASSERT_ALIGNED(b);
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+    b = __builtin_assume_aligned(b, _SMART_ARRAY_ALIGN);
+
+    bool equal = true;
+
+    for (size_t i = 0; i < len; ++i) {
+        _ARRAY_TYPE abs_diff = (a[i] < b[i])? (b[i] - a[i]) : (a[i] - b[i]);
+        if (tolerance < abs_diff) {
+            equal = false;
+            break;
+        }
+    }
+
+    return equal;
+}
+
+static inline
 _ARRAY_RO(2, 1) _ARRAY_WO(3, 1) FN_ATTR_RETURNS_NONNULL
 _ARRAY_TYPE*
 _ARRAY_FN(copy)(size_t len, const _ARRAY_TYPE src[len], _ARRAY_TYPE dst[len])
@@ -554,6 +578,33 @@ _SARRAY_FN(add_destruct)(_SMART_ARRAY_T* a, _SMART_ARRAY_T* b)
 {
     size_t len = (a->len < b->len)? a->len : b->len;
     return _ARRAY_FN(add_destruct)(len, a->data, b->data);
+}
+
+static inline
+_ARRAY_RO(2, 1) FN_ATTR_WARN_UNUSED_RESULT
+_ARRAY_TYPE
+_ARRAY_FN(reduce_add)(
+    size_t len,
+    const _ARRAY_TYPE a[len])
+{
+    ARRAY_ASSERT_ALIGNED(a);
+    a = __builtin_assume_aligned(a, _SMART_ARRAY_ALIGN);
+
+    _ARRAY_TYPE sum = 0;
+
+    #pragma GCC ivdep
+    for (size_t i = 0; i < len; ++i) {
+         sum += a[i];
+    }
+    return sum;
+}
+
+static inline
+FN_ATTR_WARN_UNUSED_RESULT
+_ARRAY_TYPE
+_SARRAY_FN(reduce_add)(_SMART_ARRAY_T* a)
+{
+    return _ARRAY_FN(reduce_add)(a->len, a->data);
 }
 
 static inline

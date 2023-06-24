@@ -48,13 +48,13 @@ double bench_omp_mx_mx_mul(
     f64_smart_array_random_sequence(a);
     f64_smart_array_random_sequence(b);
 
-    f64_omp_matrix_matrix_multiply(0, a, b, c);
+    f64_omp_matrix_matrix_multiply(a, b, c);
 
     printf("omp matrix matrix mul "); fflush(0);
 
     double start_time = omp_get_wtime();
     for (unsigned int i = 0; i < times_repeat; ++i) {
-        f64_omp_matrix_matrix_multiply(0, a, b, c);
+        f64_omp_matrix_matrix_multiply(a, b, c);
     }
     double time = omp_get_wtime() - start_time;
 
@@ -64,10 +64,11 @@ double bench_omp_mx_mx_mul(
 
     auto_free f64_smart_array_t* d = f64_matrix_new(a_rows, b_cols);
     f64_matrix_matrix_multiply(a, b, d);
+    //assert(f64_array_equal_with_tolerance(a_rows*b_cols, c->data, d->data, 1.0e-5));
     assert(f64_array_equal(a_rows*b_cols, c->data, d->data));
     /*for (size_t i = 0; i < a_rows*b_cols; ++i) {
         if (c->data[i] != d->data[i]) {
-            printf("%lu  %f vs %f\n", i, a->data[i], b->data[i]);
+            printf("%lu  %f vs %f\n", i, c->data[i], d->data[i]);
             assert(0);
             break;
         }
